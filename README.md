@@ -10,8 +10,9 @@ contrato de prestação de serviço em PDF, no mesmo modelo usado atualmente.
 3. Preenche nome, CPF, RG, evento, data e valores da cliente.
 4. Clica em "Gerar contrato em PDF" e baixa o arquivo pronto para assinatura.
 
-Os dados da contratada (Ana Maria Ristoff) já ficam fixos no sistema — só é
-necessário alterá-los em [app.py](app.py) se algum dado dela mudar.
+Os dados da contratada (Ana Maria Ristoff) já ficam fixos no sistema — nome e
+profissão em [app.py](app.py), e o CPF em `.streamlit/secrets.toml` (fora do
+repositório, por ser dado sensível). Altere ali se algum dado dela mudar.
 
 ## Rodando localmente (para testes)
 
@@ -26,14 +27,17 @@ copy .streamlit\secrets.toml.example .streamlit\secrets.toml
 ## Publicando de graça no Streamlit Community Cloud
 
 1. Crie uma conta gratuita em https://streamlit.io/cloud (pode entrar com GitHub).
-2. Suba este projeto para um repositório no GitHub (pode ser privado).
-   - **Importante:** o arquivo `.streamlit/secrets.toml` não deve ser enviado
-     ao GitHub (o `.gitignore` já cuida disso).
+2. Suba este projeto para um repositório no GitHub. Pode ser **público** —
+   o CPF da contratada não vai no código, só em `secrets.toml`, que nunca é
+   enviado ao GitHub (o `.gitignore` já cuida disso). Repositório privado
+   exige uma etapa extra de autorização do Streamlit Cloud a repositórios
+   privados, então público é o caminho mais simples.
 3. No painel do Streamlit Cloud, clique em "New app", escolha o repositório e
    o arquivo `app.py`.
-4. Antes de publicar (ou depois, em *Settings → Secrets*), adicione a senha:
+4. Antes de publicar (ou depois, em *Settings → Secrets*), adicione:
    ```toml
    app_password = "sua-senha-aqui"
+   contratada_cpf = "000.000.000-00"
    ```
 5. Publique. Você receberá um link (ex: `https://seu-app.streamlit.app`) para
    enviar à dona do salão — pode até salvar como atalho na tela inicial do

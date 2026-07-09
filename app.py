@@ -7,8 +7,8 @@ import streamlit as st
 from pdf_generator import gerar_contrato_pdf
 
 # Dados fixos da contratada (profissional/salão). Edite aqui se mudar.
+# O CPF fica em st.secrets (não vai para o repositório público no GitHub).
 CONTRATADA_NOME = "Ana Maria Ristoff"
-CONTRATADA_CPF = "048.988.919-00"
 CONTRATADA_PROFISSAO = "Profissional de Penteado e Maquiagem"
 
 EVENTOS = ["Casamento", "Debutante (15 anos)", "Formatura", "Ensaio Fotográfico", "Outro"]
@@ -93,7 +93,7 @@ if enviado:
             "valor_sinal": valor_sinal,
             "sinal_pago": sinal_pago,
             "contratada_nome": CONTRATADA_NOME,
-            "contratada_cpf": CONTRATADA_CPF,
+            "contratada_cpf": st.secrets["contratada_cpf"],
             "contratada_profissao": CONTRATADA_PROFISSAO,
         }
         pdf_buffer = gerar_contrato_pdf(dados)
