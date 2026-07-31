@@ -123,7 +123,8 @@ def gerar_contrato_pdf(dados: dict) -> BytesIO:
         f"Nome: {dados['contratante_nome']}",
         f"CPF: {dados['contratante_cpf']}",
         f"RG: {dados['contratante_rg']}",
-        f"Evento: {dados['evento']} ({dados['papel_evento']})",
+        f"Evento: {dados['evento']}",
+        f"Papel no evento: {dados['papel_evento']}",
         f"Data: {dados['data_evento']}",
     ]
     nome_homenageada = dados.get("nome_homenageada", "").strip()
