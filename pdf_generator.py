@@ -60,13 +60,6 @@ CLAUSULAS = [
         "9. HIGIENE DO CABELO",
         "A contratante deve comparecer com o cabelo limpo e seco.",
     ),
-    (
-        "10. CONVIDADOS",
-        "Caso haja convidados adicionais contratando procedimento de penteado "
-        "e/ou maquiagem, seus nomes, procedimentos e valores constam na lista "
-        "anexa a este contrato, sujeitos às mesmas condições aqui "
-        "estabelecidas.",
-    ),
 ]
 
 
@@ -172,43 +165,23 @@ def gerar_contrato_pdf(dados: dict) -> BytesIO:
         elementos.append(Paragraph(titulo, clausula_titulo_style))
         elementos.append(Paragraph(texto.format(**contexto_clausulas), clausula_texto_style))
 
-    convidados = dados.get("convidados", [])
-    if convidados:
-        elementos.append(Spacer(1, 0.4 * cm))
-        elementos.append(Paragraph("ANEXO – CONVIDADOS COM PROCEDIMENTO", clausula_titulo_style))
-
-        linhas_convidados = [
-            [
-                Paragraph("Nome", cabecalho_style),
-                Paragraph("Procedimento", cabecalho_style),
-                Paragraph("Valor", cabecalho_style),
-            ]
-        ]
-        for convidado in convidados:
-            procedimentos_texto = ", ".join(convidado.get("procedimentos", [])) or "-"
-            linhas_convidados.append(
-                [
-                    Paragraph(convidado["nome"], campo_style),
-                    Paragraph(procedimentos_texto, campo_style),
-                    Paragraph(_formatar_moeda(convidado.get("valor", 0.0)), campo_style),
-                ]
-            )
-
-        tabela_convidados = Table(linhas_convidados, colWidths=[7 * cm, 5.6 * cm, 4 * cm])
-        tabela_convidados.setStyle(
-            TableStyle(
-                [
-                    ("BOX", (0, 0), (-1, -1), 0.75, colors.black),
-                    ("INNERGRID", (0, 0), (-1, -1), 0.75, colors.black),
-                    ("VALIGN", (0, 0), (-1, -1), "TOP"),
-                    ("LEFTPADDING", (0, 0), (-1, -1), 6),
-                    ("RIGHTPADDING", (0, 0), (-1, -1), 6),
-                    ("TOPPADDING", (0, 0), (-1, -1), 4),
-                    ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
-                ]
+    quantidade_convidados = dados.get("quantidade_convidados", 0)
+    if quantidade_convidados > 0:
+        procedimentos_convidados = dados.get("procedimentos_convidados", [])
+        procedimentos_texto = " e ".join(p.lower() for p in procedimentos_convidados) or (
+            "penteado e/ou maquiagem"
+        )
+        convidado_singular = quantidade_convidados == 1
+        elementos.append(Paragraph("10. CONVIDADOS", clausula_titulo_style))
+        elementos.append(
+            Paragraph(
+                f"Além da contratante, {quantidade_convidados} "
+                f"{'convidado' if convidado_singular else 'convidados'} também "
+                f"{'realizará' if convidado_singular else 'realizarão'} neste "
+                f"contrato o(s) seguinte(s) procedimento(s): {procedimentos_texto}.",
+                clausula_texto_style,
             )
         )
-        elementos.append(tabela_convidados)
 
     elementos.append(Spacer(1, 2 * cm))
 
