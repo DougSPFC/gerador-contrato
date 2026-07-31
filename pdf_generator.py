@@ -60,6 +60,13 @@ CLAUSULAS = [
         "9. HIGIENE DO CABELO",
         "A contratante deve comparecer com o cabelo limpo e seco.",
     ),
+    (
+        "10. CONVIDADOS",
+        "Caso haja convidados adicionais contratando procedimento de penteado "
+        "e/ou maquiagem, seus nomes, procedimentos e valores constam na lista "
+        "anexa a este contrato, sujeitos às mesmas condições aqui "
+        "estabelecidas.",
+    ),
 ]
 
 
@@ -112,13 +119,19 @@ def gerar_contrato_pdf(dados: dict) -> BytesIO:
     )
     elementos.append(Spacer(1, 0.8 * cm))
 
-    contratante_html = (
-        f"Nome: {dados['contratante_nome']}<br/>"
-        f"CPF: {dados['contratante_cpf']}<br/>"
-        f"RG: {dados['contratante_rg']}<br/>"
-        f"Evento: {dados['evento']} ({dados['papel_evento']})<br/>"
-        f"Data: {dados['data_evento']}"
-    )
+    contratante_linhas = [
+        f"Nome: {dados['contratante_nome']}",
+        f"CPF: {dados['contratante_cpf']}",
+        f"RG: {dados['contratante_rg']}",
+        f"Evento: {dados['evento']} ({dados['papel_evento']})",
+        f"Data: {dados['data_evento']}",
+    ]
+    nome_homenageada = dados.get("nome_homenageada", "").strip()
+    if nome_homenageada and nome_homenageada != dados["contratante_nome"]:
+        contratante_linhas.append(
+            f"Nome de quem recebe o serviço principal: {nome_homenageada}"
+        )
+    contratante_html = "<br/>".join(contratante_linhas)
     contratada_html = (
         f"Nome: {dados['contratada_nome']}<br/>"
         f"CPF: {dados['contratada_cpf']}<br/>"
@@ -157,6 +170,44 @@ def gerar_contrato_pdf(dados: dict) -> BytesIO:
     for titulo, texto in CLAUSULAS:
         elementos.append(Paragraph(titulo, clausula_titulo_style))
         elementos.append(Paragraph(texto.format(**contexto_clausulas), clausula_texto_style))
+
+    convidados = dados.get("convidados", [])
+    if convidados:
+        elementos.append(Spacer(1, 0.4 * cm))
+        elementos.append(Paragraph("ANEXO – CONVIDADOS COM PROCEDIMENTO", clausula_titulo_style))
+
+        linhas_convidados = [
+            [
+                Paragraph("Nome", cabecalho_style),
+                Paragraph("Procedimento", cabecalho_style),
+                Paragraph("Valor", cabecalho_style),
+            ]
+        ]
+        for convidado in convidados:
+            procedimentos_texto = ", ".join(convidado.get("procedimentos", [])) or "-"
+            linhas_convidados.append(
+                [
+                    Paragraph(convidado["nome"], campo_style),
+                    Paragraph(procedimentos_texto, campo_style),
+                    Paragraph(_formatar_moeda(convidado.get("valor", 0.0)), campo_style),
+                ]
+            )
+
+        tabela_convidados = Table(linhas_convidados, colWidths=[7 * cm, 5.6 * cm, 4 * cm])
+        tabela_convidados.setStyle(
+            TableStyle(
+                [
+                    ("BOX", (0, 0), (-1, -1), 0.75, colors.black),
+                    ("INNERGRID", (0, 0), (-1, -1), 0.75, colors.black),
+                    ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                    ("LEFTPADDING", (0, 0), (-1, -1), 6),
+                    ("RIGHTPADDING", (0, 0), (-1, -1), 6),
+                    ("TOPPADDING", (0, 0), (-1, -1), 4),
+                    ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
+                ]
+            )
+        )
+        elementos.append(tabela_convidados)
 
     elementos.append(Spacer(1, 2 * cm))
 
